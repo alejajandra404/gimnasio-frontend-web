@@ -5,6 +5,8 @@ import PaginaClase from './paginas/PaginaClase';
 import { NoEncontrado } from './componentes/NoEncontrado';
 import PaginaEntrar from './paginas/PaginaEntrar';
 import PaginaRegistro from './paginas/PaginaRegistro';
+import PaginaMisInscripciones from './paginas/PaginaMisInscripciones';
+import { RutaProtegida } from './componentes/RutaProtegida';
 
 export default function App() {
   return (
@@ -15,6 +17,10 @@ export default function App() {
         <Route path="/clases/:id" element={<PaginaClase />} />
         <Route path="/entrar" element={<PaginaEntrar />} />
         <Route path="/registro" element={<PaginaRegistro />} />
+        {/* las rutas que van adentro de RutaProtegida solo se ven con sesion */}
+        <Route element={<RutaProtegida />}>
+          <Route path="/mis-inscripciones" element={<PaginaMisInscripciones />} />
+        </Route>
         <Route path="*"element={<NoEncontrado />} />
       </Route>
     </Routes>

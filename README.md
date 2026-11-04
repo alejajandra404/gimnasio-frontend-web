@@ -73,3 +73,51 @@ Otras capturas de este ejercicio: el error cuando las credenciales son incorrect
 ![Error de credenciales](evidencias/practica-16/06-error-credenciales.png)
 
 ![Cuenta nueva con el registro](evidencias/practica-16/10-registro-cuenta-nueva.png)
+
+---
+
+# Práctica 17 – El gimnasio: rutas protegidas e inscripciones
+
+## Ejercicio 1: mis inscripciones, sólo con sesión
+
+Sin sesión, al pulsar «Mis inscripciones» me manda a `/entrar`, y después de entrar con Karla me regresa a `/mis-inscripciones`.
+
+![Redirección a /entrar](evidencias/practica-17/12-redireccion-entrar.png)
+
+![Regreso a Mis inscripciones](evidencias/practica-17/13-regreso-mis-inscripciones.png)
+
+### ¿La ruta protegida hace segura la aplicación? ¿Qué es lo que de verdad protege los datos?
+
+No, la ruta protegida sola no hace segura la aplicación. Lo único que hace es esconder la página a quien no tiene sesión, pero todo ese código ya está en el navegador de la persona y se puede cambiar. Lo vi cuando cambié el token por uno falso: como el usuario seguía guardado, la ruta me dejó pasar a la página, pero los datos no llegaron, porque la API contestó 401. Lo que de verdad protege los datos es la API (el backend), que revisa el token en cada petición y no entrega nada si no es válido.
+
+### Comprobar con curl que GET /inscripciones/mias sin token responde 401
+
+Corrí `curl -i http://localhost:3000/inscripciones/mias` sin mandar ningún token y la respuesta fue `HTTP/1.1 401 Unauthorized`, con el mensaje `{"message":"Unauthorized","statusCode":401}`.
+
+![curl sin token](evidencias/practica-17/18-curl-sin-token.png)
+
+## Ejercicio 2: inscribirse y el 401
+
+Con la sesión de Karla me inscribí al lunes 07:00 de Fuerza total. Salió el aviso verde y los lugares bajaron de 20 a 19 sin que yo recargara la página.
+
+![Inscripción exitosa](evidencias/practica-17/14-inscripcion-exitosa.png)
+
+Al pulsar Inscribirme otra vez en el mismo horario salió el error 409, con el mensaje de la API: «Ya estás inscrito en este horario».
+
+![Error 409](evidencias/practica-17/15-error-409.png)
+
+Con la cuenta de Ana que es entrenadora salió el error 403, con el mensaje de la API: «Tu cuenta no es de un miembro del gimnasio».
+
+![Error 403](evidencias/practica-17/16-error-403.png)
+
+Cambié el token guardado por uno falso y entré a Mis inscripciones. La API contestó 401, la sesión se cerró sola, el encabezado volvió a mostrar el botón Entrar y quedé en `/entrar`. En el Local Storage ya no estaban el token ni el usuario.
+
+![Token falso cerrando la sesión](evidencias/practica-17/17-token-falso.png)
+
+### ¿Por qué no se manda el miembroId al inscribirse?
+
+Porque la API ya sabe quién soy por el token que va en cada petición, y de ahí saca mi `miembroId`. Si el frontend lo mandara, cualquiera podría cambiarlo y tratar de inscribir a otra persona, la API usa solo el que viene en el token.
+
+### ¿Qué diferencia hay entre un 401 y un 403?
+
+El 401 quiere decir que la API no sabe quién eres: no mandaste token, o el token es falso o ya venció. El 403 quiere decir que la API si sabe quién eres, pero tu cuenta no tiene permiso para hacer eso. En el frontend, el 401 cierra la sesión, y el 403 solo muestra el mensaje.

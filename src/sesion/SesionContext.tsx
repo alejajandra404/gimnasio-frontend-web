@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import type { Sesion, Usuario } from '../clase';
 import * as servicio from '../servicios/sesion';
 
@@ -43,6 +43,16 @@ export function ProveedorSesion({ children }: { children: ReactNode }) {
     localStorage.removeItem('usuario');
     setUsuario(null);
   }
+
+  // cuando la api responde 401, api.ts ya borro el token y avisa con este evento. aqui se quita el usuario
+  useEffect(() => {
+    const alTerminar = () => setUsuario(null);
+
+    window.addEventListener('sesion-terminada', alTerminar);
+
+    // dejar de escuchar
+    return () => window.removeEventListener('sesion-terminada', alTerminar);
+  }, []);
 
   return (
     <SesionContext value={{ usuario, entrar, registrar, salir }}>

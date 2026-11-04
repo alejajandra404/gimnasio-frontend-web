@@ -1,8 +1,8 @@
 // hooks/useMisInscripciones.ts — RECURSO: el mismo patrón de useClases, otra vez.
 import { useEffect, useState } from 'react';
-import { traerMisInscripciones } from '../servicios/gimnasio.ts';
+import { traerMisInscripciones } from '../servicios/clasesServicio.ts';
 import { mensajeDeError } from '../servicios/api.ts';
-import type { Inscripcion } from '../tipos.ts';
+import type { Inscripcion } from '../clase.ts';
 
 export function useMisInscripciones() {
   const [inscripciones, setInscripciones] = useState<Inscripcion[]>([]);

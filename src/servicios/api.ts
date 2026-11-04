@@ -33,6 +33,11 @@ export function mensajeDeError(e: unknown, generico: string): string {
   return generico;
 }
 
+// el codigo de estado con el que fallo la peticion (401, 403, 409...). si no fue un error de la api, no hay codigo
+export function estadoDeError(e: unknown): number | undefined {
+  return axios.isAxiosError(e) ? e.response?.status : undefined;
+}
+
 
 // antes de cada peticion, si hay token guardado lo mandamos en el encabezado authorization
 api.interceptors.request.use((config) => {
@@ -42,3 +47,19 @@ api.interceptors.request.use((config) => {
 
   return config;
 });
+
+
+// despues de cada respuesta: si la api dice 401 y habia un token guardado, es que la sesion ya no sirve
+api.interceptors.response.use(
+  (respuesta) => respuesta,
+  (error) => {
+    if (axios.isAxiosError(error) && error.response?.status === 401 && localStorage.getItem('token')) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('usuario');
+
+      window.dispatchEvent(new Event('sesion-terminada'));
+    }
+
+    return Promise.reject(error);
+  }
+);

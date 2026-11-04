@@ -1,7 +1,7 @@
 // servicios/gimnasio.ts — las llamadas a la API, tipadas.
 // Los componentes sólo ven estas funciones, nunca a Axios.
 import { api, type Sobre } from './api.ts';
-import type { Clase, ClaseConHorarios } from '../clase.ts';
+import type { Clase, ClaseConHorarios, Inscripcion } from '../clase.ts';
 
 // GET /clases
 export async function traerClases(): Promise<Clase[]> {
@@ -12,5 +12,17 @@ export async function traerClases(): Promise<Clase[]> {
 // GET /clases/:id → la clase con sus horarios
 export async function traerClase(id: number): Promise<ClaseConHorarios> {
   const respuesta = await api.get<Sobre<ClaseConHorarios>>(`/clases/${id}`);
+  return respuesta.data.data;
+}
+
+
+// POST /inscripciones → no se manda el miembroId, la api lo saca del token
+export async function inscribirse(horarioId: number): Promise<void> {
+  await api.post('/inscripciones', { horarioId });
+}
+
+// GET /inscripciones/mias → las inscripciones de quien tiene la sesion iniciada
+export async function traerMisInscripciones(): Promise<Inscripcion[]> {
+  const respuesta = await api.get<Sobre<Inscripcion[]>>('/inscripciones/mias');
   return respuesta.data.data;
 }

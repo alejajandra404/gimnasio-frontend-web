@@ -1,11 +1,14 @@
 import { useState, type FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { Link, useNavigate, useLocation } from 'react-router';
 import { useSesion } from '../sesion/SesionContext';
 import { mensajeDeError } from '../servicios/api';
 
 export default function PaginaEntrar() {
   const { entrar } = useSesion();
   const navegar = useNavigate();
+
+  // si manda a entrar desde otra pagina, ahi se guarda a donde ir. si no, va a /clases
+  const desde = (useLocation().state as { desde?: string } | null)?.desde ?? '/clases';
 
   // cada campo del formulario vive en un estado: asi el formulario es controlado
   const [correo, setCorreo] = useState('');
@@ -20,7 +23,7 @@ export default function PaginaEntrar() {
 
     try {
       await entrar(correo, password);
-      navegar('/clases');
+      navegar(desde);
     } catch (e) {
       // aqui sale el mensaje que manda la api, por ejemplo "credenciales invalidas"
       setError(mensajeDeError(e, 'No se pudo iniciar sesion'));
