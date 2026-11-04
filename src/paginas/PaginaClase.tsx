@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router';
 import { useClase } from '../hooks/useClase';
 import { useSesion } from '../sesion/SesionContext';
+import { useInscripciones } from '../estado/inscripciones';
 import { inscribirse } from '../servicios/clasesServicio';
 import { urlImagen, estadoDeError, mensajeDeError } from '../servicios/api';
 import { Cargando } from '../componentes/Cargando';
@@ -20,6 +21,10 @@ export default function PaginaClase() {
     const { clase, cargando, error, reintentar } = useClase(Number(id));
     const { usuario } = useSesion();
     const [aviso, setAviso] = useState<Aviso | null>(null);
+
+    // las inscripciones de la persona vienen del store, y cargarInscripciones sirve para ponerlas al dia
+    const misInscripciones = useInscripciones((estado) => estado.lista);
+    const cargarInscripciones = useInscripciones((estado) => estado.cargar);
 
     if (cargando) return <Cargando />;
 
@@ -44,6 +49,8 @@ export default function PaginaClase() {
             setAviso({ tipo: 'exito', texto: 'Te inscribiste correctamente.' });
             // pedir la clase para que los lugares disponibles esten al dia
             reintentar();
+            // pedir las inscripciones otra vez para que el store y el contador del encabezado se actualicen
+            cargarInscripciones();
         } catch (e) {
             const estado = estadoDeError(e);
             if (estado === 409 || estado === 403) {
@@ -78,8 +85,10 @@ export default function PaginaClase() {
                                         {h.entrenador} · {h.disponibles} de {h.cupoMaximo} lugares
                                     </div>
                                 </div>
-                                {/* si ya no quedan lugares sale "lleno", si no, el boton para inscribirse */}
-                                {h.disponibles === 0 ? (
+                                {/* si el horario ya esta en el store sale "ya estas inscrito"; si no quedan lugares, "lleno"; si no, el boton */}
+                                {misInscripciones.some((i) => i.horario.id === h.id) ? (
+                                    <span className="horario__inscrito">Ya estás inscrito</span>
+                                ) : h.disponibles === 0 ? (
                                     <span className="horario__lleno">Lleno</span>
                                 ) : (
                                     <button className="boton boton--chico" onClick={() => inscribir(h.id)}>

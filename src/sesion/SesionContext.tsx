@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import type { Sesion, Usuario } from '../clase';
 import * as servicio from '../servicios/sesion';
+import { useInscripciones } from '../estado/inscripciones';
 
 // lo que va a poder usar cualquier componente que lea la sesion
 interface ValorSesion {
@@ -43,6 +44,13 @@ export function ProveedorSesion({ children }: { children: ReactNode }) {
     localStorage.removeItem('usuario');
     setUsuario(null);
   }
+
+  // cada vez que cambia el usuario: si hay sesion se llena el store con sus inscripciones, si no, se vacia.
+  // getState() es para usar el store desde aqui sin que este componente se vuelva a pintar con cada cambio
+  useEffect(() => {
+    if (usuario) useInscripciones.getState().cargar();
+    else useInscripciones.getState().vaciar();
+  }, [usuario]);
 
   // cuando la api responde 401, api.ts ya borro el token y avisa con este evento. aqui se quita el usuario
   useEffect(() => {

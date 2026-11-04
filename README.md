@@ -121,3 +121,48 @@ Porque la API ya sabe quién soy por el token que va en cada petición, y de ah�
 ### ¿Qué diferencia hay entre un 401 y un 403?
 
 El 401 quiere decir que la API no sabe quién eres: no mandaste token, o el token es falso o ya venció. El 403 quiere decir que la API si sabe quién eres, pero tu cuenta no tiene permiso para hacer eso. En el frontend, el 401 cierra la sesión, y el 403 solo muestra el mensaje.
+
+---
+
+# Práctica 18 – El gimnasio: lazy loading, el build y Zustand
+
+## Ejercicio 1: partir por ruta y medir
+
+Primero corrí `npm run build` con todo el código junto. Generó 3 archivos: el `index.html`, un `.css` de 6.43 kB y un solo `.js` de 319.37 kB (102.99 kB comprimido).
+
+![Build antes](evidencias/practica-18/19-build-antes.png)
+
+Después cargué cada página con `React.lazy`, puse un `Suspense` con el indicador de carga dentro del layout, y le agregué `loading="lazy"` a las imágenes del catálogo. Volví a correr el build y ahora generó un `.js` por cada página, además del principal. El principal bajó a 314.07 kB (102.19 kB comprimido), y las páginas quedaron así: `PaginaClase` 2.27 kB, `PaginaRegistro` 1.51 kB, `PaginaMisInscripciones` 1.45 kB, `PaginaClases` 1.41 kB, `PaginaEntrar` 1.29 kB, y `MensajeError` 0.54 kB.
+
+![Build después](evidencias/practica-18/20-build-despues.png)
+
+Serví el build con `npx vite preview --port 5173` y en la pestaña Red (filtro JS, con la caché desactivada) al abrir `/clases` solo se bajaron el principal, `PaginaClases` y `MensajeError`. Cuando hice clic en una clase se bajó `PaginaClase`, o sea que cada página se baja hasta que la visito.
+
+![Red con una página bajando](evidencias/practica-18/21-red-pagina-bajando.png)
+
+### ¿Cuánto se ahorró y por qué el ahorro es pequeño en esta aplicación?
+
+Se ahorró muy poco, el archivo principal pasó de 319.37 kB a 314.07 kB, y comprimido solo 0.8 kB. Creo que el ahorro es pequeño porque las páginas son muy chicas (de 1 a 2 kB cada una) y casi todo el peso del archivo principal son las librerías, como React, el router y axios, que se ocupan en todas las páginas y por eso se quedan ahí.
+
+### ¿Por qué falla la API si el preview corre en el puerto 4173?
+
+Porque el preview, si no le digo el puerto, usa el 4173, y el backend solo deja pasar peticiones que vienen del puerto 5173 (viene en el `main.ts` del backend). Al abrir `localhost:4173/clases` salió el error de CORS en la consola: «has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource», y la página mostró «No se pudo conectar con el gimnasio». En la consola también salió `net::ERR_FAILED 200 (OK)`, o sea que el backend sí contestó bien, pero el navegador no dejó que la página usara esa respuesta.
+
+![Error de CORS en el puerto 4173](evidencias/practica-18/22-error-cors-4173.png)
+
+## Ejercicio 2: un store para las inscripciones
+
+Creé un store de Zustand con las inscripciones, el estado de carga y las funciones para cargarlas y vaciarlas. Se llena cuando alguien inicia sesión y se vacía cuando sale. Con la sesión de Karla, que tenía 2 inscripciones, el encabezado mostraba un 2 junto a «Mis inscripciones». Después de inscribir a un horario de Boxeo recreativo salió el aviso verde, el horario quedó marcado como «Ya estás inscrito» y el contador subió a 3.
+
+Antes de inscribirme:
+
+![Contador antes](evidencias/practica-18/23-contador-antes.png)
+
+Después de inscribirme:
+
+![Contador después](evidencias/practica-18/24-contador-despues.png)
+
+### ¿Cuándo conviene un contexto y cuándo un store?
+
+Yo entiendo que el contexto conviene para cosas que casi no cambian y que muchos componentes necesitan, como la sesión (quién entró). El store conviene para datos que cambian seguido y que se usan en varias páginas, como las inscripciones.
+

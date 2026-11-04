@@ -1,14 +1,15 @@
 import { Link } from 'react-router';
-import { useMisInscripciones } from '../hooks/useMisInscripciones';
+import { useInscripciones } from '../estado/inscripciones';
 import { urlImagen } from '../servicios/api';
 import { Cargando } from '../componentes/Cargando';
 import { MensajeError } from '../componentes/MensajeError';
 
 export default function PaginaMisInscripciones() {
-    const { inscripciones, cargando, error, reintentar } = useMisInscripciones();
+    // ya no pedimos los datos aqui: los leemos del store, que lo llena la sesion
+    const { lista: inscripciones, cargando, error, cargar } = useInscripciones();
 
     if (cargando) return <Cargando />;
-    if (error) return <MensajeError mensaje={error} onReintentar={reintentar} />;
+    if (error) return <MensajeError mensaje={error} onReintentar={cargar} />;
 
     return (
         <>

@@ -23,7 +23,7 @@ export default function PaginaClases() {
                 {clases.map((c) => (
                     <Link key={c.id} to={`/clases/${c.id}`} className="tarjeta-clase">
                         {/* la imagen la sirve el backend, por eso se arma la direccion con urlImagen */}
-                        <img className="tarjeta-clase__imagen" src={urlImagen(c.imagen)} alt={c.nombre} />
+                        <img className="tarjeta-clase__imagen" src={urlImagen(c.imagen)} alt={c.nombre} loading="lazy" />
                         <div className="tarjeta-clase__cuerpo">
                             {/* la clase de css cambia de color segun la categoria */}
                             <span className={`etiqueta etiqueta--${c.categoria}`}>{c.categoria}</span>

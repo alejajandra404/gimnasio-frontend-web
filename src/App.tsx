@@ -1,12 +1,15 @@
+import { lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router';
 import { Layout } from './componentes/Layout';
-import PaginaClases from './paginas/PaginaClases';
-import PaginaClase from './paginas/PaginaClase';
 import { NoEncontrado } from './componentes/NoEncontrado';
-import PaginaEntrar from './paginas/PaginaEntrar';
-import PaginaRegistro from './paginas/PaginaRegistro';
-import PaginaMisInscripciones from './paginas/PaginaMisInscripciones';
 import { RutaProtegida } from './componentes/RutaProtegida';
+
+// cada pagina se descarga solo cuando alguien la visita. lazy solo funciona con paginas que usan export default
+const PaginaClases = lazy(() => import('./paginas/PaginaClases'));
+const PaginaClase = lazy(() => import('./paginas/PaginaClase'));
+const PaginaEntrar = lazy(() => import('./paginas/PaginaEntrar'));
+const PaginaRegistro = lazy(() => import('./paginas/PaginaRegistro'));
+const PaginaMisInscripciones = lazy(() => import('./paginas/PaginaMisInscripciones'));
 
 export default function App() {
   return (
