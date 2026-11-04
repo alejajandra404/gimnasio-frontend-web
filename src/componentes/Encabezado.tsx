@@ -2,6 +2,7 @@
 // NavLink es un <Link> que además sabe si su ruta es la actual: así se
 // pinta el enlace activo sin una línea de JavaScript propio.
 import { Link, NavLink } from 'react-router';
+import { useSesion } from '../sesion/SesionContext';
 
 // La clase del enlace según si está activo o no.
 function claseEnlace({ isActive }: { isActive: boolean }) {
@@ -9,6 +10,9 @@ function claseEnlace({ isActive }: { isActive: boolean }) {
 }
 
 export function Encabezado() {
+  // leemos la sesion para saber si hay alguien dentro o no
+  const { usuario, salir } = useSesion();
+
   return (
     <header className="barra">
       <div className="barra__interior">
@@ -24,9 +28,16 @@ export function Encabezado() {
           </ul>
         </nav>
 
-        {/* Práctica 16: aquí va quién inició sesión y el botón Salir. */}
+        {/* con sesion sale el nombre y Salir; sin sesion sale Entrar */}
         <div className="barra__sesion">
-          <Link to="/entrar" className="boton boton--chico">Entrar</Link>
+          {usuario ? (
+            <>
+              <span className="barra__usuario">Hola, {usuario.nombre}</span>
+              <button className="boton boton--secundario boton--chico" onClick={salir}>Salir</button>
+            </>
+          ) : (
+            <Link to="/entrar" className="boton boton--chico">Entrar</Link>
+          )}
         </div>
       </div>
     </header>

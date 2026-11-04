@@ -32,3 +32,13 @@ export function mensajeDeError(e: unknown, generico: string): string {
   }
   return generico;
 }
+
+
+// antes de cada peticion, si hay token guardado lo mandamos en el encabezado authorization
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+
+  return config;
+});
